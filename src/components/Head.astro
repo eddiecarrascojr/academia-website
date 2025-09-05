@@ -45,23 +45,32 @@ const { title, description, image } = Astro.props
 <meta property='twitter:description' content={description} />
 <meta property='twitter:image' content={new URL(image, Astro.url)} />
 
-<!-- Theme selector scripts -->
+<!-- Theme selector scripts (force dark theme) -->
 <script is:inline>
-  // Get stored theme or default to light
-  const getStoredTheme = () => {
-    return localStorage.getItem('theme') || 'light';
-  }
+  // Force the site theme to the configured dark theme on load and after swaps.
+  // If you prefer a hard-coded value, replace the string below (e.g. 'dark').
+  const forcedTheme = 'dark';
 
-  // Apply theme immediately to prevent flash
-  const theme = getStoredTheme();
-  document.documentElement.setAttribute('data-theme', theme);
+  // Apply immediately to prevent flash
+  document.documentElement.setAttribute('data-theme', forcedTheme);
 
-  // Re-apply theme after navigation
+  // Re-apply after Astro swaps (client navigation)
   document.addEventListener('astro:after-swap', () => {
-    const currentTheme = getStoredTheme();
-    document.documentElement.setAttribute('data-theme', currentTheme);
+    document.documentElement.setAttribute('data-theme', forcedTheme);
   });
 </script>
+
+<script>
+  // Keep theme-change in place if you want controls to work (optional).
+  import { themeChange } from 'theme-change'
+  themeChange()
+
+  // Re-initialize after Astro view transitions
+  document.addEventListener('astro:after-swap', () => {
+    themeChange(false); // false = don't persist to localStorage
+  });
+</script>
+
 <script>
 	import { themeChange } from 'theme-change'
 	themeChange()
